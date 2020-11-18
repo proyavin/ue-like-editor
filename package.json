@@ -23,5 +23,7 @@
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "tslint": "^6.1.3"
+  }
 }
