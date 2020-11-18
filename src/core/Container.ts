@@ -12,6 +12,41 @@ export class Container {
         this.width = width;
         this.height = height;
         this.ctx = ctx;
+
+        let isDown = false;
+        let oldMouseX = 0;
+        let oldMouseY = 0;
+        let oldThisX = 0;
+        let oldThisY = 0;
+
+        document.addEventListener('mousedown', (event) => {
+
+            if (
+                (event.x >= this.x && event.x <= this.x + this.width) &&
+                (event.y >= this.y && event.y <= this.y + this.height)
+            ) {
+                isDown = true;
+                oldMouseX = event.x;
+                oldMouseY = event.y;
+
+                oldThisX = this.x;
+                oldThisY = this.y;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+
+        document.addEventListener('mousemove', (event) => {
+            if (isDown) {
+                const mouseXOffset = oldMouseX - event.x;
+                const mouseYOffset= oldMouseY - event.y;
+
+                this.x = oldThisX - mouseXOffset;
+                this.y = oldThisY - mouseYOffset;
+            }
+        })
     }
 
     update() {
