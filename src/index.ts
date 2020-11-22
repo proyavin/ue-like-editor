@@ -1,3 +1,3 @@
 import { App } from "@core/App";
 
-const app = new App('app').run();
+const app = new App().run();

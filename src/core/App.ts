@@ -1,30 +1,37 @@
-import { Container } from '@core/Container';
-import {Camera} from '@core/Camera';
-import {Canvas} from '@core/Canvas';
-import {Helpers} from "@utils/Helpers";
+import Container from '@core/Container';
+import Camera from '@core/Camera';
+import Canvas from '@core/Canvas';
+import Helpers from '@utils/Helpers';
+import Arrow from '@core/Arrow';
+
+// scale number * param
 
 export class App {
 
     public camera: Camera;
     public canvas: Canvas;
 
-    public element: HTMLCanvasElement;
-    public ctx: CanvasRenderingContext2D;
     public containers: Container[] = [];
+    public arrows: Arrow[] = [];
 
-    constructor(id: string) {
-        this.canvas = Canvas.getInstance(id);
-        this.element = this.canvas.element;
-        this.ctx = this.canvas.ctx;
-
+    constructor() {
+        this.canvas = Canvas.getInstance();
         this.camera = Camera.getInstance();
     }
 
     public run() {
         this.setCanvas();
 
-        this.containers.push(new Container(50, 50, 100, 200, this.ctx));
-        this.containers.push(new Container(350, 250, 100, 200, this.ctx));
+        this.containers.push(new Container(50, 50, 100, 200, 'aqua'));
+        this.containers.push(new Container(350, 250, 100, 200, 'pink'));
+        this.containers.push(new Container(550, 150, 100, 200, 'mediumslateblue'));
+        this.containers.push(new Container(750, 180, 100, 200, 'palegreen'));
+
+        this.arrows.push(new Arrow(this.containers[0], this.containers[1]));
+        this.arrows.push(new Arrow(this.containers[1], this.containers[2]));
+        this.arrows.push(new Arrow(this.containers[2], this.containers[0]));
+        this.arrows.push(new Arrow(this.containers[0], this.containers[3]));
+        this.arrows.push(new Arrow(this.containers[3], this.containers[2]));
 
         window.requestAnimationFrame(() => {
             this.draw();
@@ -41,7 +48,7 @@ export class App {
         let oldCameraX = 0;
         let oldCameraY = 0;
 
-        this.element.addEventListener('mousedown', (event) => {
+        this.canvas.element.addEventListener('mousedown', (event) => {
             currentContainerIdx = this.containers.findIndex((container) => {
                 return (event.x >= container.x + this.camera.positionX &&
                     event.x <= container.x + container.width + this.camera.positionX) &&
@@ -63,15 +70,19 @@ export class App {
                 oldCameraX = this.camera.positionX;
                 oldCameraY = this.camera.positionY;
             }
-
         });
 
-        this.element.addEventListener('mouseup', () => {
+        this.canvas.element.addEventListener('mouseleave', () => {
+            isDown = false;
+            isCameraDown = false;
+        })
+
+        this.canvas.element.addEventListener('mouseup', () => {
             isDown = false;
             isCameraDown = false;
         });
 
-        this.element.addEventListener('mousemove', (event) => {
+        this.canvas.element.addEventListener('mousemove', (event) => {
             if (isDown && currentContainerIdx !== -1) {
                 const mouseXOffset = (oldMouseX - event.x);
                 const mouseYOffset = (oldMouseY - event.y);
@@ -87,8 +98,14 @@ export class App {
                 if (newCameraPositionX > 0) { newCameraPositionX = 0; }
                 if (newCameraPositionY > 0) { newCameraPositionY = 0; }
 
-                if (-(newCameraPositionX - window.innerWidth) >= 2000) { newCameraPositionX = -(2000 - window.innerWidth); }
-                if (-(newCameraPositionY - window.innerHeight) >= 2000) { newCameraPositionY = -(2000 - window.innerHeight); }
+                if (-(newCameraPositionX - window.innerWidth) >= this.camera.workspaceWidth) {
+                    newCameraPositionX = -(this.camera.workspaceWidth - window.innerWidth);
+                }
+
+                if (-(newCameraPositionY - window.innerHeight) >= this.camera.workspaceHeight) {
+                    newCameraPositionY = -(this.camera.workspaceHeight - window.innerHeight);
+                }
+
 
                 this.camera.positionX = newCameraPositionX;
                 this.camera.positionY = newCameraPositionY;
@@ -101,20 +118,24 @@ export class App {
         const width = document.body.clientWidth;
         const height = document.body.clientHeight;
 
-        this.element.width = width;
-        this.element.height = height;
-        this.element.style.width = width + 'px';
-        this.element.style.height = height + 'px';
+        this.canvas.element.width = width;
+        this.canvas.element.height = height;
+        this.canvas.element.style.width = width + 'px';
+        this.canvas.element.style.height = height + 'px';
     }
 
     private draw() {
-        this.ctx.beginPath();
-        this.ctx.fillStyle = '#1E1F23';
-        this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-        this.ctx.closePath();
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.fillStyle = '#1E1F23';
+        this.canvas.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        this.canvas.ctx.closePath();
 
         this.containers.forEach((container) => {
             container.update();
+        });
+
+        this.arrows.forEach((arrow) => {
+            arrow.update();
         });
 
         Helpers.showCameraProperties(10, 20);

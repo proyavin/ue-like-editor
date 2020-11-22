@@ -1,20 +1,24 @@
-export class Camera {
+import config from '@src/config';
+
+export default class Camera {
 
     private static instance: Camera;
 
     public workspaceWidth: number;
     public workspaceHeight: number;
-    public positionXf = 0;
-    public positionYf = 0;
+    public positionX: number;
+    public positionY: number;
     public viewportWidth: number;
     public viewportHeight: number;
+    public scale: number;
 
     constructor() {
         this.positionX = 0;
         this.positionY = 0;
+        this.scale = 1;
 
-        this.workspaceWidth = 2000;
-        this.workspaceHeight = 2000;
+        this.workspaceWidth = config.workspaceWidth;
+        this.workspaceHeight = config.workspaceHeight;
 
         this.viewportWidth = window.innerWidth;
         this.viewportHeight = window.innerHeight;
@@ -28,19 +32,11 @@ export class Camera {
         return Camera.instance;
     }
 
-    set positionX(value: number) {
-        this.positionXf = value;
+    public getFactorX(x: number): number {
+        return (x + this.positionX) * this.scale;
     }
 
-    get positionX(): number {
-        return this.positionXf;
-    }
-
-    set positionY(value: number) {
-        this.positionYf = value;
-    }
-
-    get positionY(): number {
-        return this.positionYf;
+    public getFactorY(y: number) {
+        return (y + this.positionY) * this.scale;
     }
 }

@@ -1,7 +1,7 @@
-import {Canvas} from '@core/Canvas';
-import {Camera} from '@core/Camera';
+import Canvas from '@core/Canvas';
+import Camera from '@core/Camera';
 
-export class Helpers {
+export default class Helpers {
     public static showCameraProperties(x: number, y: number) {
         const ctx = Canvas.getInstance().ctx;
         const camera = Camera.getInstance();
